@@ -26,7 +26,13 @@ def audit_rows(c):
 
 def run(demo=False):
     from migration import upgrade
-    suite = unittest.defaultTestLoader.loadTestsFromModule(checks)
+    # Preserve every legacy/SDK regression and add the delivery's boundary
+    # suite (independent periodic reference, index path, migration edges).
+    import boundary_tests
+    suite = unittest.TestSuite([
+        unittest.defaultTestLoader.loadTestsFromModule(checks),
+        unittest.defaultTestLoader.loadTestsFromModule(boundary_tests),
+    ])
     result = unittest.TextTestRunner(verbosity=1).run(suite)
     assert result.wasSuccessful()
     with tempfile.TemporaryDirectory() as tmp:
